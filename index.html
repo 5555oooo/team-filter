@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字母勾選 - 隊伍篩選器（含克制）</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .letters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        .letter-item {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .letter-item:hover { border-color: #007bff; }
+        .letter-item.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 12px rgba(0, 123, 255, 0.6);
+        }
+        .letter-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .letter-item span {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .teams { margin-top: 40px; }
+        .team {
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .team-name { font-size: 22px; font-weight: bold; color: #007bff; }
+        .counter {
+            margin: 12px 0;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 8px;
+            color: #856404;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .clear-btn { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>勾選字母（或圖片）來篩選隊伍</h1>
+    
+    <div class="letters" id="letters"></div>
+
+    <button class="clear-btn" onclick="clearAll()">清除全部勾選</button>
+
+    <div class="teams" id="teams"></div>
+
+    <script>
+        const teams = [
+            { 
+                name: "隊伍1", 
+                letters: ["A", "B", "C", "E", "F"],
+                counter: ["A", "B", "C", "D", "E"]
+            },
+            { 
+                name: "隊伍2", 
+                letters: ["A", "B", "C", "D", "E"],
+                counter: []
+            }
+        ];
+
+        const lettersContainer = document.getElementById('letters');
+        const teamsContainer = document.getElementById('teams');
+
+        // 產生 A~Z
+        for (let i = 65; i <= 90; i++) {
+            const letter = String.fromCharCode(i);
+            const div = document.createElement('div');
+            div.className = 'letter-item';
+            div.dataset.letter = letter;
+
+            if (letter === "B") {
+                // ←←← 在這裡改成你的圖片檔名
+                div.innerHTML = `<img src="b.png" alt="B">`;
+            } else {
+                div.innerHTML = `<span>${letter}</span>`;
+            }
+
+            div.onclick = () => {
+                div.classList.toggle('selected');
+                filterTeams();
+            };
+            lettersContainer.appendChild(div);
+        }
+
+        function filterTeams() {
+            const selectedLetters = Array.from(document.querySelectorAll('.letter-item.selected'))
+                                        .map(el => el.dataset.letter);
+
+            teamsContainer.innerHTML = '';
+
+            let hasResult = false;
+
+            teams.forEach(team => {
+                const isMatch = selectedLetters.every(letter => team.letters.includes(letter));
+
+                if (isMatch) {
+                    hasResult = true;
+                    const div = document.createElement('div');
+                    div.className = 'team';
+                    let counterHTML = team.counter.length > 0 ? 
+                        `<div class="counter"><strong>克制隊伍：</strong> ${team.counter.join(' ')}</div>` : '';
+
+                    div.innerHTML = `
+                        <div class="team-name">${team.name}</div>
+                        <div><strong>隊伍字母：</strong> ${team.letters.join(' ')}</div>
+                        ${counterHTML}
+                    `;
+                    teamsContainer.appendChild(div);
+                }
+            });
+
+            if (!hasResult && selectedLetters.length > 0) {
+                teamsContainer.innerHTML = '<div style="color:#999; margin-top:40px;">沒有符合條件的隊伍</div>';
+            }
+        }
+
+        function clearAll() {
+            document.querySelectorAll('.letter-item').forEach(item => item.classList.remove('selected'));
+            filterTeams();
+        }
+
+        filterTeams();
+    </script>
+</body>
+</html>
