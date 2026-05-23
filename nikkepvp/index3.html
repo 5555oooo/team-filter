@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>妮姬PVP進攻隊伍 - 螢光黃邊框版</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #a78bfa 0%, #3b82f6 100%);
+            --glow-color: rgba(255, 255, 0, 0.4); 
+            --fluorescent-yellow: #ccff00; 
+            --section-bg: rgba(182, 185, 242, 0.65); 
+        }
+
+        body {
+            font-family: "Inter", "Microsoft JhengHei", Arial, sans-serif;
+            text-align: center;
+            background: #0f172a url('bg.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* 標題框調整：不模糊、微透 */
+        .header-box {
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: none;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 25px;
+        }
+
+        h1 { 
+            font-size: 28px; 
+            margin: 0 0 10px 0; 
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* 副標顏色與標題同步 */
+        .subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .section {
+            background: var(--section-bg);
+            border: 2px solid #ffffff; 
+            border-radius: 20px;
+            margin-bottom: 15px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 15px 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 5px;
+        }
+
+        .item {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 0.5px solid var(--fluorescent-yellow); 
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--glow-color);
+            border-width: 1px;
+        }
+
+        .item.selected {
+            border: 2px solid #3b82f6; 
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+            transform: scale(0.96);
+        }
+
+        .item img { width: 100%; height: 100%; object-fit: cover; }
+
+        .item.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 4px; right: 4px;
+            background: var(--primary-gradient);
+            color: white;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            font-size: 12px;
+            line-height: 20px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .controls { position: sticky; top: 15px; z-index: 100; margin-bottom: 20px; }
+        .clear-btn { 
+            padding: 10px 25px; 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .teams { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+
+        .team-card {
+            background: #ecebfa; 
+            color: #333;
+            padding: 15px;
+            width: 98%;
+            max-width: 1100px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 5px solid #3b82f6;
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            text-align: left;
+            border: 1px solid #6161a5; 
+        }
+
+        .team-card.similar { border-top-color: #6c757d; }
+        
+        .team-main { 
+            flex: 0 0 auto; 
+            min-width: 360px; 
+            border-right: 2px solid #6161a5; 
+            padding-right: 15px; 
+            padding-top: 12px;
+        }
+        
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .team-main h3 { margin: 0; color: #6b21a8; font-size: 16px; line-height: 1.2; }
+        
+        .team-counters { flex: 1; padding: 12px; } 
+        .team-counters strong { 
+            font-size: 16px; 
+            color: #6b21a8; 
+            display: block; 
+            margin-bottom: 10px; 
+            line-height: 1.2;
+        }
+
+        .counter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+        
+        .team-members-img { 
+            display: inline-flex; 
+            gap: 4px; 
+            white-space: nowrap; 
+            border: 2px solid #ffffff; 
+            padding: 5px; 
+            border-radius: 12px; 
+            background: #ffffff; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .member-img-box { width: 62px; height: 62px; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; background: #fff; flex-shrink: 0; }
+        .member-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 11px; font-weight: bold; }
+        .tag-match { background: #dbeafe; color: #1e40af; }
+        .tag-similar { background: #f3f4f6; color: #4b5563; }
+
+        @media (max-width: 900px) {
+            .team-card { flex-direction: column; }
+            .team-main { border-right: none; padding-bottom: 15px; border-bottom: 2px solid #6161a5; min-width: auto; padding-top: 0; }
+            .counter-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-box">
+        <h1>妮姬PVP隊伍 進攻陣容推薦</h1>
+        <p class="subtitle">說明：請勾選對方的防守陣容，自動篩選能克制的對戰隊伍，若無符合的隊伍則顯示包含勾選3張以上的相似隊伍。</p>
+    </div>
+
+    <div class="controls">
+        <button class="clear-btn" onclick="clearAll()">清除所有勾選</button>
+    </div>
+
+    <div class="section"><div class="section-title">爆裂 Ⅰ</div><div class="gallery" id="burst1"></div></div>
+    <div class="section"><div class="section-title">爆裂 Ⅱ</div><div class="gallery" id="burst2"></div></div>
+    <div class="section"><div class="section-title">爆裂 Ⅲ</div><div class="gallery" id="burst3"></div></div>
+    <div class="section"><div class="section-title">特殊 / 額外</div><div class="gallery" id="special"></div></div>
+
+    <div class="teams" id="teams-container"></div>
+
+    <script>
+        const imageList = {
+            "burst1": [{file: "001.webp", num: "001"}, {file: "002.webp", num: "002"}, {file: "003.webp", num: "003"}, {file: "004.webp", num: "004"}, {file: "005.webp", num: "005"}, {file: "006.webp", num: "006"}, {file: "007.webp", num: "007"}, {file: "008.webp", num: "008"}, {file: "033.webp", num: "033"}, {file: "035.webp", num: "035"}],
+            "burst2": [{file: "009.webp", num: "009"}, {file: "010.webp", num: "010"}, {file: "011.webp", num: "011"}, {file: "012.webp", num: "012"}, {file: "013.webp", num: "013"}, {file: "014.webp", num: "014"}, {file: "015.webp", num: "015"}, {file: "031.webp", num: "031"}, {file: "032.webp", num: "032"}],
+            "burst3": [{file: "016.webp", num: "016"}, {file: "017.webp", num: "017"}, {file: "018.webp", num: "018"}, {file: "019.webp", num: "019"}, {file: "020.webp", num: "020"}, {file: "021.webp", num: "021"}, {file: "022.webp", num: "022"}, {file: "023.webp", num: "023"}, {file: "024.webp", num: "024"}, {file: "025.webp", num: "025"}, {file: "026.webp", num: "026"}, {file: "027.webp", num: "027"}, {file: "028.webp", num: "028"}, {file: "034.webp", num: "034"}],
+            "special": [{file: "029.webp", num: "029"}, {file: "030.webp", num: "030"}]
+        };
+
+        const teams = [
+            { "name": "減傷灰姑娘", "members": ["001", "013", "012", "009", "016"], "counters": ["023 010 021 005 006"] },
+            { "name": "娜由塔", "members": ["027", "015", "003", "016", "009"], "counters": ["017 005 010 012 028", "015 024 020 029 014", "005 023 021 010 020", "001 010 018 009 016", "010 027 024 009 001", "010 016 027 009 003", "008 023 021 011 005", "015 023 020 025 007"] },
+            { "name": "諾餅紅蓮", "members": ["011", "009", "024", "029", "017"], "counters": ["002 010 018 009 011"] },
+            { "name": "不屈紅蓮", "members": ["017", "005", "028", "010", "023"], "counters": ["017 005 028 010 012"] },
+            { "name": "不屈紅蓮", "members": ["017", "005", "010", "021", "012"], "counters": ["002 010 009 026 016"] },
+            { "name": "2RL水母", "members": ["011", "008", "003", "019", "025"], "counters": ["015 014 024 029 020"] },
+            { "name": "2RL水母", "members": ["001", "011", "019", "024", "025"], "counters": ["017 005 010 012 028"] },
+            { "name": "娜由塔", "members": ["004", "015", "018", "029", "024"], "counters": ["017 022 004 012 024"] },
+            { "name": "不屈重白", "members": ["010", "018", "024", "009", "001"], "counters": ["010 018 004 009 016"] },
+            { "name": "諾餅重白", "members": ["011", "009", "018", "007", "005"], "counters": ["020 029 024 031 015"] },
+            { "name": "諾餅重白", "members": ["001", "011", "009", "018", "025"], "counters": ["005 018 010 009 032", "010 032 018 009 029", "001 011 009 018 005"] },
+            { "name": "諾餅重白", "members": ["001", "011", "018", "024", "009"], "counters": ["018 010 029 014 005"] },
+            { "name": "不屈重白", "members": ["005", "018", "028", "010", "014"], "counters": ["011 014 018 007 008"] },
+            { "name": "不屈重白", "members": ["008", "010", "016", "018", "024"], "counters": ["017 022 028 029 005"] },
+            { "name": "重白", "members": ["001", "011", "024", "018", "027"], "counters": ["001 013 018 009 016"] },
+            { "name": "重白", "members": ["001", "011", "023", "018", "024"], "counters": ["001 013 009 018 016"] },
+            { "name": "重白", "members": ["011", "008", "013", "018", "003"], "counters": ["001 013 009 018 016"] },
+            { "name": "娜由塔", "members": ["015", "024", "020", "029", "018"], "counters": ["001 014 009 016 012"] },
+            { "name": "娜由塔", "members": ["015", "012", "024", "029", "020"], "counters": ["015 027 003 009 016"] },
+            { "name": "娜由塔", "members": ["015", "024", "025", "029", "020"], "counters": ["001 014 009 016 012"] },
+            { "name": "不屈戰貝", "members": ["005", "023", "010", "006", "021"], "counters": ["011 024 025 007 003"] },
+            { "name": "超阿", "members": ["002", "001", "012", "028", "009"], "counters": ["002 010 009 026 016", "015 014 024 029 020", "017 005 010 012 028"] },
+            { "name": "不屈超阿", "members": ["002", "010", "009", "024", "028"], "counters": ["015 014 024 029 020"] },
+            { "name": "重白", "members": ["001", "011", "012", "018", "028"], "counters": ["005 023 010 020 032"] },
+            { "name": "不屈重白", "members": ["005", "018", "028", "010", "021"], "counters": ["015 024 020 029 014"] },
+            { "name": "戰貝", "members": ["001", "003", "023", "025", "011"], "counters": ["023 024 010 005 032"] },
+            { "name": "戰貝", "members": ["001", "013", "023", "022", "024"], "counters": ["015 024 018 007 020"] },
+            { "name": "不屈戰貝", "members": ["005", "023", "003", "010", "025"], "counters": ["015 024 018 007 020"] },
+            { "name": "不屈戰貝", "members": ["005", "023", "028", "010", "020"], "counters": ["017 005 010 012 028", "015 024 020 029 014", "005 023 021 010 020", "001 010 018 009 016", "010 027 024 009 001", "010 016 027 009 003", "008 023 021 011 005", "024 022 033 034 011"] },
+            { "name": "諾餅戰貝", "members": ["011", "009", "023", "007", "018"], "counters": ["017 010 012 005 028", "016 010 009 018 001"] },
+            { "name": "娜由塔", "members": ["015", "018", "029", "020", "025"], "counters": ["017 005 010 012 028"] },            
+            { name: "不屈紅蓮", members: ["017", "010", "012", "028", "005"], counters: ["011 009 024 016 003", "011 009 024 020 008", "011 009 028 014 003"] },
+            { name: "不屈紅蓮", members: ["005", "017", "010", "028", "014"], counters: ["011 009 024 016 003", "011 009 024 020 008", "011 009 028 014 003"] },
+            { name: "紅蓮", members: ["017", "012", "029", "003", "005"], counters: ["011 009 024 016 003", "011 009 024 020 008", "011 009 028 014 003"] },
+            { name: "紅蓮", members: ["017", "012", "014", "029", "005"], counters: ["011 009 024 016 003", "011 009 024 020 008", "011 009 028 014 003"] },
+            { name: "灰姑娘", members: ["008", "011", "014", "004", "016"], counters: ["017 010 024 029 005", "008 011 003 009 016"] },
+            { name: "諾餅灰姑娘", members: ["011", "009", "016", "029", "020"], counters: ["017 011 029 020 005", "011 003 014 016 020"] },
+            { name: "諾餅emt", members: ["011", "009", "020", "029", "005"], counters: ["020 010 029 009 005"] },
+            { name: "戰貝", members: ["005", "023", "028", "011", "020"], counters: ["010 009 003 023 024(020)", "010 017 009 024 005"] },
+            { name: "對戰隊伍", members: ["001", "011", "018", "032", "017"], counters: ["017 022 004 012 024", "002 010 018 009 011"] },
+            { name: "2RL 諾餅重白", members: ["011", "001", "009", "018", "024"], counters: ["011 027 013 009 016"] },
+            { name: "2RL 不屈超阿", members: ["002", "010", "024", "018", "009"], counters: ["002 010 027 016 009"] },
+            { name: "2.5RL 諾餅海倫", members: ["011", "009", "024", "029", "017"], counters: ["002 010 018 009 011", "015 012 024 029 020", "002 010 018 009 011"] },
+            { name: "慢速重白", members: ["001", "013", "009", "018", "024"], counters: ["002 010 016 009 027"] },
+            { name: "4RL 諾餅灰", members: ["011", "008", "009", "004", "016"], counters: ["005 023 021 010 018"] },
+            { name: "2.5RL 不屈戰貝", members: ["005", "023", "028", "010", "020"], counters: ["015 024 029 012 003"] },
+            { name: "2RL- 不屈紅蓮", members: ["017", "012", "018", "035", "024"], counters: ["002 011 009 019 014"] },
+            { name: "2.5RL 重白", members: ["001", "013", "009", "018", "028"], counters: ["008 018 010 021 005"] },
+            { name: "3RL 不屈戰貝", members: ["005", "023", "010", "006", "021"], counters: ["015 024 029 020 003"] },
+            { name: "娜由塔", members: ["015", "024", "025", "029", "020"], counters: ["001 011 009 023 014"] },
+            { name: "2RL不屈超阿", members: ["002", "010", "018", "009", "011"], counters: ["017 010 029 014 005", "011 009 024 029 017"] },
+            { name: "娜由塔", members: ["015", "012", "019", "029", "024"], counters: ["011 009 024 029 017"] },
+            { name: "不屈紅蓮", members: ["017", "010", "029", "014", "005"], counters: ["002 010 018 009 011"] },
+            { name: "不屈emt", members: ["020", "010", "028", "023", "005"], counters: ["010 009 016 020 003"] },
+            { name: "娜由塔", members: ["015", "024", "025", "020", "029"], counters: ["001 011 024 018 012"] },
+            { name: "不屈重白", members: ["005", "018", "028", "010", "021"], counters: ["025 020 023 010 007"] },
+            { name: "諾餅灰", members: ["001", "027", "011", "009", "016"], counters: ["013 008 035 009 030"] },
+            { name: "不屈超阿", members: ["002", "010", "023", "009", "016"], counters: ["002 010 009 026 004"] }
+
+        ];
+
+        function init() {
+            Object.keys(imageList).forEach(cat => {
+                const con = document.getElementById(cat);
+                imageList[cat].forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'item'; div.dataset.num = item.num;
+                    const img = document.createElement('img');
+                    img.src = item.file;
+                    img.onerror = () => { img.style.display='none'; div.innerHTML=`<span style="font-size:10px; color:white;">${item.num}</span>`; };
+                    div.appendChild(img);
+                    div.onclick = () => { div.classList.toggle('selected'); renderTeams(); };
+                    con.appendChild(div);
+                });
+            });
+            renderTeams();
+        }
+
+        function getImagesFromIds(idString) {
+            if(!idString) return '';
+            return idString.split(/\s+/).map(id => {
+                const cleanId = id.split('(')[0];
+                return `<div class="member-img-box"><img src="${cleanId}.webp" title="${id}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2262%22 height=%2262%22><rect width=%2262%22 height=%2262%22 fill=%22%23ccc%22/><text x=%2250%%22 y=%2250%%22 font-size=%2211%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22>${id}</text></svg>'"></div>`;
+            }).join('');
+        }
+
+        function renderTeams() {
+            const selected = Array.from(document.querySelectorAll('.item.selected')).map(el => el.dataset.num);
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+            if (selected.length === 0) return;
+
+            const matchedTeams = []; 
+            const similarTeams = []; 
+
+            teams.forEach(t => {
+                const intersection = t.members.filter(m => selected.includes(m));
+                const isFullMatch = selected.every(s => t.members.includes(s));
+                if (isFullMatch) {
+                    matchedTeams.push(t);
+                } else if (intersection.length >= 3) {
+                    similarTeams.push(t);
+                }
+            });
+
+            const createCard = (t, type) => {
+                const card = document.createElement('div');
+                card.className = `team-card ${type === 'similar' ? 'similar' : ''}`;
+                const tagHTML = type === 'similar' ? '<span class="tag tag-similar">💡 相似隊伍</span>' : '<span class="tag tag-match">✅ 完全符合</span>';
+                card.innerHTML = `
+                    <div class="team-main">
+                        <div class="team-header">
+                            <h3>${t.name}</h3>
+                            ${tagHTML}
+                        </div>
+                        <div class="team-members-img">${getImagesFromIds(t.members.join(' '))}</div>
+                    </div>
+                    ${t.counters.length > 0 ? `
+                        <div class="team-counters">
+                            <strong>⚔️ 建議進攻陣容：</strong>
+                            <div class="counter-grid">${t.counters.map(c => `<div class="team-members-img">${getImagesFromIds(c)}</div>`).join('')}</div>
+                        </div>
+                    ` : ''}`;
+                return card;
+            };
+
+            matchedTeams.forEach(t => container.appendChild(createCard(t, 'match')));
+            similarTeams.forEach(t => container.appendChild(createCard(t, 'similar')));
+        }
+
+        function clearAll() {
+            document.querySelectorAll('.item.selected').forEach(i => i.classList.remove('selected'));
+            renderTeams();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
